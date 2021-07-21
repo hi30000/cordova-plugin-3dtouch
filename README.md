@@ -6,15 +6,13 @@ This is custom for capacitor2 compatable.
 *ios/AppDelegate.swift 
 ```
 // capacitor2 3D touch
-    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
-             print("여기")  // code
+   func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
         let handledShorCutItem = handleShortCutItem(shortcutItem)
        completionHandler(handledShorCutItem)
    }
     func handleShortCutItem(_ shortcutItem: UIApplicationShortcutItem) -> Bool {
-        print("1: "+shortcutItem.type) //value
-        print("2: "+shortcutItem.localizedTitle) //제목
-    
+        print(shortcutItem.type) //value
+            
         let nc = NotificationCenter.default
         nc.post(name: Notification.Name("ThreeDeeTouch.onHomeIconPressed"), object: nil, userInfo: ["type":shortcutItem.type])
         return true;

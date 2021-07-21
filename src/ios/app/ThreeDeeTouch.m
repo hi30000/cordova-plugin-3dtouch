@@ -7,7 +7,44 @@
 
 - (void) deviceIsReady:(CDVInvokedUrlCommand *)command {
     self.initDone = YES;
+    
+    NSLog(@"ThreeDeeTouch init");
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(callJavascriptFunctionWhenAvailable:)
+                                                 name:@"ThreeDeeTouch.onHomeIconPressed"
+                                               object:nil];
 }
+
+// check every x seconds for the phone  app to be ready, or stop from glance.didDeactivate
+- (void) callJavascriptFunctionWhenAvailable:(NSNotification *)noti {
+    
+    NSDictionary* dataStr = [noti userInfo];
+    NSLog(@"%@", dataStr); //전송된 Dictionary 로그출력
+    
+    NSString* type = dataStr[@"type"];
+    NSLog(@"%@", type); //전송된 Dictionary 로그출력
+    
+    NSString* function = [NSString stringWithFormat: @"ThreeDeeTouch.onHomeIconPressed({\"type\":\"%@\"})", type];
+    
+
+    ThreeDeeTouch *threeDeeTouch = self;
+  if (threeDeeTouch.initDone) {
+    if ([threeDeeTouch.webView respondsToSelector:@selector(stringByEvaluatingJavaScriptFromString:)]) {
+      // UIWebView
+      [threeDeeTouch.webView performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:function waitUntilDone:NO];
+    } else if ([threeDeeTouch.webView respondsToSelector:@selector(evaluateJavaScript:completionHandler:)]) {
+      // WKWebView
+      [threeDeeTouch.webView performSelector:@selector(evaluateJavaScript:completionHandler:) withObject:function withObject:nil];
+    } else {
+      NSLog(@"No compatible method found to communicate 3D Touch callback to the webview. Please notify the plugin author.");
+    }
+  } else {
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 25 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
+//      [self callJavascriptFunctionWhenAvailable:nil];
+//    });
+  }
+}
+
 
 - (void) isAvailable:(CDVInvokedUrlCommand *)command {
     
